@@ -28,7 +28,7 @@ const formSchema = z.object({
     )
     .refine((file) => file.size <= 3 * 1024 * 1024, {
       message: "File size should not exceed 3MB",
-    })
+    }).optional()
 })
 
 export function RegistrationForm({
@@ -47,10 +47,13 @@ export function RegistrationForm({
     const formData = new FormData();
     formData.append("email", values.email);
     formData.append("password", values.password);
-    formData.append("image", values.image);
+
+    if (values.image) {
+      formData.append("image", values.image);
+    }
 
     const { data, error } = await actions.user.postUser(formData);
-    if (error) {
+    if (error?.code === "INTERNAL_SERVER_ERROR") {
       form.setError("email", {
         type: "manual",
         message: error.message

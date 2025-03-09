@@ -25,7 +25,7 @@ export const user = {
                 )
                 .refine((file) => file.size <= 3 * 1024 * 1024, {
                     message: "File size should not exceed 3MB",
-                })
+                }).optional()
         }),
         handler: async (input) => {
             const existingUsers = await db.select().from(Users).where(eq(Users.email, input.email));
@@ -36,23 +36,26 @@ export const user = {
                 })
             }
 
-            const timestamp = Date.now();
+            let imageFilename = null;
+            if (input.image) {
+                const timestamp = Date.now();
+                const filename = `${timestamp}-${input.image.name}`;
+                const uploadDir = path.join(process.cwd(), "public", "uploads");
 
-            const filename = `${timestamp}-${input.image.name}`;
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
+                await fs.mkdir(uploadDir, { recursive: true });
 
-            await fs.mkdir(uploadDir, { recursive: true });
+                const buffer = Buffer.from(await input.image.arrayBuffer());
+                await fs.writeFile(path.join(uploadDir, filename), buffer);
 
-            const buffer = Buffer.from(await input.image.arrayBuffer());
-
-            await fs.writeFile(path.join(uploadDir, filename), buffer)
+                imageFilename = filename;
+            }
 
             const hashedPassword = await bcrypt.hash(input.password, 10)
             const userData = db.insert(Users).values({
                 id: uuidv4(),
                 email: input.email,
                 password_hash: hashedPassword,
-                image: filename,
+                image: imageFilename,
             })
                 .returning();
             return userData

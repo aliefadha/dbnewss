@@ -4,27 +4,56 @@ import { db, Users } from "astro:db";
 import "../styles/global.css";
 import AuthLayout from "@/layouts/AuthLayout.astro";
 import { Image } from "astro:assets";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 
 const user = await db.select().from(Users);
 ---
 
 <AuthLayout>
-  <h1 class="text-3xl font-bold underline">Astro</h1>
-  <div>
-    {
-      user.map((use) => (
-        <div>
-          <Image
-            src={`/uploads/${use.image}`}
-            alt={use.email}
-            width={250}
-            height={250}
-          />
-          <article>{use.id}</article>
-          <article>{use.email}</article>
-          <article>{use.password_hash}</article>
-        </div>
-      ))
-    }
+  <h1 class="text-3xl font-bold underline text-center">Astro</h1>
+  <div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div class="w-full max-w-6xl">
+      <Card>
+        <CardContent>
+          <Table>
+            <TableCaption>User list</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">User Id</TableHead>
+                <TableHead>Image</TableHead>
+                <TableHead>Email</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {
+                user.map((use) => (
+                  <TableRow key={use.id}>
+                    <TableCell className="font-medium">{use.id}</TableCell>
+                    <TableCell>
+                      <Image
+                        src={`/uploads/${use.image}`}
+                        alt={use.email}
+                        width={250}
+                        height={250}
+                      />
+                    </TableCell>
+                    <TableCell>{use.email}</TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   </div>
 </AuthLayout>
