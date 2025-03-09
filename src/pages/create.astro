@@ -1,0 +1,39 @@
+---
+import { RegistrationForm } from "@/components/registration-form";
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import { Users } from "astro:db";
+import { db } from "astro:db";
+
+if (Astro.request.method == "POST") {
+  const formData = await Astro.request.formData();
+  const emailData = formData.get("email");
+  const password = formData.get("password");
+  const createDate = new Date();
+
+  if (typeof emailData === "string" && typeof password === "string") {
+    await db.insert(Users).values({
+      email: emailData,
+      password_hash: password,
+      created_at: createDate,
+    });
+  }
+}
+---
+
+<AuthLayout>
+  <!-- <form method="POST">
+    <label for="email">Email</label>
+    <input id="email" name="email" />
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" />
+
+    <button type="submit">Submit</button>
+  </form> -->
+
+  <div class="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div class="w-full max-w-sm">
+      <RegistrationForm client:load />
+    </div>
+  </div>
+</AuthLayout>
