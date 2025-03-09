@@ -15,7 +15,7 @@ const user = await db.select().from(Users);
       user.map((use) => (
         <div>
           <Image
-            src={`/public/uploads/${use.image}`}
+            src={`/uploads/${use.image}`}
             alt={use.email}
             width={250}
             height={250}

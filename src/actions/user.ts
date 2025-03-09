@@ -36,20 +36,23 @@ export const user = {
                 })
             }
 
+            const timestamp = Date.now();
+
+            const filename = `${timestamp}-${input.image.name}`;
             const uploadDir = path.join(process.cwd(), "public", "uploads");
 
             await fs.mkdir(uploadDir, { recursive: true });
 
             const buffer = Buffer.from(await input.image.arrayBuffer());
 
-            await fs.writeFile(path.join(uploadDir, input.image.name), buffer)
+            await fs.writeFile(path.join(uploadDir, filename), buffer)
 
             const hashedPassword = await bcrypt.hash(input.password, 10)
             const userData = db.insert(Users).values({
                 id: uuidv4(),
                 email: input.email,
                 password_hash: hashedPassword,
-                image: input.image.name,
+                image: filename,
             })
                 .returning();
             return userData
