@@ -1,16 +1,30 @@
 ---
+import { db, Users } from "astro:db";
 
+import "../styles/global.css";
+import AuthLayout from "@/layouts/AuthLayout.astro";
+import { Image } from "astro:assets";
+
+const user = await db.select().from(Users);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<AuthLayout>
+  <h1 class="text-3xl font-bold underline">Astro</h1>
+  <div>
+    {
+      user.map((use) => (
+        <div>
+          <Image
+            src={`/public/uploads/${use.image}`}
+            alt={use.email}
+            width={250}
+            height={250}
+          />
+          <article>{use.id}</article>
+          <article>{use.email}</article>
+          <article>{use.password_hash}</article>
+        </div>
+      ))
+    }
+  </div>
+</AuthLayout>
